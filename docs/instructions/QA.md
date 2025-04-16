@@ -37,6 +37,148 @@ This test suite should assert the following scenarios:
 2. A user should be able to update their password using the update password form
    at `/profile`.
 
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+class BaseClass:
+    def __init__(self):
+        self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        self.driver.maximize_window()
+        self.wait = WebDriverWait(self.driver, 15)
+
+    def setup(self, url):
+        self.driver.get(url)
+
+    def teardown(self):
+        self.driver.quit()
+
+    def wait_for_element(self, locator):
+        return self.wait.until(EC.presence_of_element_located(locator))
+
+    def wait_for_element_visible(self, locator):
+        return self.wait.until(EC.visibility_of_element_located(locator))
+
+
+class LoginPage:
+    login_home_button = (By.XPATH, "//a[contains(text(), 'Log in')]")
+    email_input = (By.NAME, "email")
+    password_input = (By.NAME, "password")
+    login_button = (By.XPATH, "//button[contains(text(), 'Log in')]")
+
+    def __init__(self, driver):
+        self.driver = driver
+
+    def click_loginHome(self):
+        self.driver.find_element(*self.login_home_button).click()
+
+    def enter_credentials(self, email, password):
+        self.driver.find_element(*self.email_input).send_keys(email)
+        self.driver.find_element(*self.password_input).send_keys(password)
+
+    def click_login(self):
+        self.driver.find_element(*self.login_button).click()
+
+
+class ProfilePage:
+    current_password_input = (By.ID, "current_password")
+    new_password_input = (By.ID, "password")
+    confirm_password_input = (By.ID, "password_confirmation")
+    save_button = (By.XPATH, "//button[contains(text(), 'Save')]")
+    profile_button = (By.XPATH, "//button[contains(text(), 'Sam')]")
+    logout_button = (By.XPATH, "//button[contains(text(), 'Log Out')]")
+
+    def __init__(self, driver):
+        self.driver = driver
+
+    def change_password(self, current_password, new_password):
+        self.driver.find_element(*self.current_password_input).send_keys(current_password)
+        self.driver.find_element(*self.new_password_input).send_keys(new_password)
+        self.driver.find_element(*self.confirm_password_input).send_keys(new_password)
+        self.driver.find_element(*self.save_button).click()
+
+    def logout(self):
+        self.driver.find_element(*self.profile_button).click()
+        self.driver.find_element(*self.logout_button).click()
+
+
+class Utilities:
+    @staticmethod
+    def scroll_until_element_displayed(driver, element_xpath):
+        wait = WebDriverWait(driver, 15)
+        while True:
+            driver.execute_script("window.scrollBy(0, 1000);")
+            time.sleep(1)
+            try:
+                element = wait.until(EC.visibility_of_element_located((By.XPATH, element_xpath)))
+                if element.is_displayed():
+                    print("Element is displayed!")
+                    break
+            except:
+                print("Element not found, scrolling again...")
+
+
+class TestLogin(BaseClass):
+    movies_heading = (By.XPATH, "//h2[contains(text(), 'Movies')]")
+
+    def test_login_and_verify_movies_page(self):
+        self.setup("http://localhost:8000/login")
+        login_page = LoginPage(self.driver)
+        login_page.enter_credentials("sam123@gmail.com", "Sp16bcs006")
+        login_page.click_login()
+
+        self.wait_for_element_visible(self.movies_heading)
+
+        assert self.driver.find_element(*self.movies_heading).is_displayed()
+        print("Test 1 Passed: Login successful and 'Movies' heading is present.")
+        self.teardown()
+
+    def test_login_and_change_password(self):
+        self.setup("http://localhost:8000/login")
+        login_page = LoginPage(self.driver)
+        login_page.enter_credentials("sam123@gmail.com", "Sp16bcs006")
+        login_page.click_login()
+        self.wait_for_element_visible(self.movies_heading)
+
+        self.setup("http://localhost:8000/profile")
+        profile_page = ProfilePage(self.driver)
+        Utilities.scroll_until_element_displayed(self.driver, ProfilePage.save_button[1])
+
+        profile_page.change_password("Sp16bcs006", "Sp16bcs0061")
+
+        self.wait_for_element(ProfilePage.save_button)
+        self.driver.refresh()
+
+        profile_page.logout()
+        self.wait_for_element(LoginPage.login_home_button)
+
+        login_page.click_loginHome()
+        self.wait_for_element(LoginPage.email_input)
+        login_page.enter_credentials("sam123@gmail.com", "Sp16bcs006")
+        login_page.click_login()
+
+        self.wait_for_element_visible(self.movies_heading)
+
+        assert self.driver.find_element(*self.movies_heading).is_displayed()
+        print("Password changed, but old password still works. Functional issue.")
+        self.teardown()
+
+
+
+print("Running test case 1: Login and verify page")
+test1 = TestLogin()
+test1.test_login_and_verify_movies_page()
+
+print("\nRunning test case 2: Login, change password, verify login")
+test2 = TestLogin()
+test2.test_login_and_change_password()
+
+
 ### Option 3: End-to-End Test (Mobile)
 
 Implement a simple end-to-end test suite for the movie reviews mobile application.
