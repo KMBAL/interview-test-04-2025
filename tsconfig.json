@@ -1,0 +1,22 @@
+
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "Node",
+    "typeRoots": ["node_modules/@types", "./types"],
+    "outDir": "dist",
+    "rootDir": "src",
+    "types": ["node", "@cucumber/cucumber"],
+    "resolveJsonModule": true
+  },
+  "include": ["*.ts",
+    "interview-test-04-2025/src/**/*.ts"
+  ],
+  "exclude": [
+    "../node_modules"
+  ]
+}
