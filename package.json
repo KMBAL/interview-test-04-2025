@@ -1,0 +1,32 @@
+{
+  "name": "interview-test-04-2025",
+  "version": "1.0.0",
+  "scripts": {
+    "clear:allure": "rimraf .\\allure-results",
+    "test": "npx cucumber-js",
+    "test:qa": "cross-env ENV=qa npx cucumber-js \"src/test/features/**/*.feature\"",
+    "clean:temp": "powershell -Command \"Get-ChildItem -Path ./src/test/features -Filter *.feature~ -Recurse | Remove-Item -Force -ErrorAction SilentlyContinue\""
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@cucumber/cucumber": "^11.2.0",
+    "@playwright/test": "^1.49.0",
+    "@types/chai": "^5.0.1",
+    "@types/node": "^22.10.1",
+    "allure-commandline": "^2.32.0",
+    "allure-playwright": "^3.0.6",
+    "chai": "^5.1.2",
+    "cross-env": "^7.0.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@types/dotenv": "^6.1.1",
+    "dotenv": "^16.4.6",
+    "playwright": "^1.49.0"
+  }
+}

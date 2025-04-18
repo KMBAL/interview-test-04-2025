@@ -1,0 +1,20 @@
+{
+  "default": {
+    "tags": "@smoke",
+    "formatOptions": {
+      "snippetInterface": "async-await"
+    },
+    "dryRun": false,
+    "retry": 0,
+    "paths": [
+      "src/test/feature/*"
+    ],
+    "require": [
+      "src/test/support/*.ts",
+      "src/test/steps/**/*.ts"
+    ],
+    "requireModule": [
+      "ts-node/register"
+    ]
+  }
+}
